@@ -342,9 +342,11 @@ public class PokeWareController : Controller
 
                 quiz.Add(new PokeWareQuestion
                 {
+
                     // Use the capitalized alias to avoid null values when the
                     // lowercase property isn't loaded by EF.
                     QuestionText = $"Quel est le type élémentaire de {poke.Name} ?",
+
                     ImageUrl = null, // ensure text questions have no image
                     CorrectAnswer = correct,
                     Choices = choices.OrderBy(_ => _rng.Next()).ToList()
