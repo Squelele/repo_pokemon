@@ -2,8 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using PokemonTeam.Data;      // injecte PokemonDbContext
 using PokemonTeam.Models;     // Pokemon
-using PokemonTeam.Models.PokeWare;    // Pokemon, PokeWareQuestion, PokeWareSession
+using PokemonTeam.Models.PokeWare;
+using PokemonTeam.Services;    // Pokemon, PokeWareQuestion, PokeWareSession
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace PokemonTeam.Controllers;
 /// <summary>
@@ -24,12 +26,14 @@ public class PokeWareController : Controller
 {
     private readonly PokemonDbContext _context;
     private readonly PokemonController _pokemonController;
+    private readonly PokeApiService _pokeApi;
     private readonly Random _rng = new();
 
-    public PokeWareController(PokemonDbContext context)
+    public PokeWareController(PokemonDbContext context, PokeApiService pokeApi)
     {
         _context = context;
         _pokemonController = new PokemonController(context);
+        _pokeApi = pokeApi;
     }
 
     // --------------------------------------------------------------------
@@ -94,7 +98,7 @@ public class PokeWareController : Controller
     public IActionResult SelectMode() => View();   // options : 10 / 20 / 50 / Infini
 
     [HttpPost]
-    public IActionResult StartQuiz(int numberOfQuestions)
+    public async Task<IActionResult> StartQuiz(int numberOfQuestions)
     {
         var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
         if (session is null)
@@ -112,7 +116,7 @@ public class PokeWareController : Controller
             return RedirectToAction(nameof(SelectMode));
         }
 
-        session.Questions = GenerateQuiz(session.Pokemons, numberOfQuestions);
+        session.Questions = await GenerateQuizAsync(session.Pokemons, numberOfQuestions);
         session.CurrentQuestionIndex = 0;
         HttpContext.Session.SetObject("QuizSession", session);
 
@@ -192,6 +196,7 @@ public class PokeWareController : Controller
     {
         var items = await _context.Items.ToListAsync();
         var player = await GetCurrentPlayer(includeItems: true);
+
         var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
 
         if (player != null && session != null)
@@ -206,12 +211,14 @@ public class PokeWareController : Controller
     public async Task<IActionResult> BuyItem(int itemId)
     {
         var player = await GetCurrentPlayer(includeItems: true);
+
         var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
         if (player == null)
             return RedirectToAction(nameof(SelectTeam));
 
         if (session != null)
             await SyncPokedollars(player, session);
+
 
         var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == itemId);
         if (item == null)
@@ -277,26 +284,49 @@ public class PokeWareController : Controller
     }
 
     /// <summary>
-    /// Construit une liste de questions à partir de la team.
+    /// Construit une liste de questions aléatoires.
     /// </summary>
-    private List<PokeWareQuestion> GenerateQuiz(List<Pokemon> team, int count)
+    private async Task<List<PokeWareQuestion>> GenerateQuizAsync(List<Pokemon> team, int count)
     {
         if (team == null || team.Count == 0 || count <= 0)
             return new List<PokeWareQuestion>();
 
         var quiz = new List<PokeWareQuestion>(count);
+        var allTypes = new[] { "fire", "water", "grass", "electric", "ice", "fighting", "poison", "ground", "flying", "psychic", "bug", "rock", "ghost", "dragon", "dark", "steel", "fairy", "normal" };
+
         for (int i = 0; i < count; i++)
         {
-            var poke = team[_rng.Next(team.Count)];
-            string pokeType = poke.Types.Any()
-                ? poke.Types[_rng.Next(poke.Types.Count)].Name
-                : "Inconnu";
-            quiz.Add(new PokeWareQuestion
+            if (_rng.Next(2) == 0)
             {
-                QuestionText = $"Quel est le type élémentaire de {poke.name} ?",
-                CorrectAnswer = pokeType,
-                Choices = new List<string> { pokeType }
-            });
+                var poke = team[_rng.Next(team.Count)];
+                string correct = poke.Types.Any()
+                    ? poke.Types[_rng.Next(poke.Types.Count)].Name
+                    : "normal";
+                var choices = new HashSet<string> { correct };
+                while (choices.Count < 4)
+                {
+                    var candidate = allTypes[_rng.Next(allTypes.Length)];
+                    choices.Add(candidate);
+                }
+
+                quiz.Add(new PokeWareQuestion
+                {
+                    QuestionText = $"Quel est le type élémentaire de {poke.name} ?",
+                    CorrectAnswer = correct,
+                    Choices = choices.OrderBy(_ => _rng.Next()).ToList()
+                });
+            }
+            else
+            {
+                var (name, image) = await _pokeApi.GetRandomPokemonAsync();
+                quiz.Add(new PokeWareQuestion
+                {
+                    QuestionText = "Quel est ce Pokémon ?",
+                    ImageUrl = image,
+                    CorrectAnswer = name,
+                    Choices = new List<string>()
+                });
+            }
         }
         return quiz;
     }

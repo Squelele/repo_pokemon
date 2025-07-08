@@ -72,9 +72,8 @@
                             }
                             else
                             {
-                                <div class="alert alert-warning text-center">
-                                    <i class="fas fa-exclamation-triangle"></i> Aucune réponse disponible
-                                </div>
+                                <input type="text" class="form-control" name="userAnswer" placeholder="Entre ton choix" required />
+                                <button type="submit" class="btn btn-primary mt-2">Valider</button>
                             }
                         </div>
                     </form>
@@ -91,7 +90,14 @@
                                 <strong>Score:</strong> @session.Score
                             </div>
                             <div class="col-md-3">
-                                <strong>Vies:</strong> @session.LivesLeft ❤️
+                                <strong>Vies:</strong>
+                                <div class="d-flex justify-content-center mt-1">
+                                    @for (int i = 0; i < session.Pokemons.Count; i++)
+                                    {
+                                        var alive = i < session.LivesLeft;
+                                        <img class="life-pokemon @(alive ? "life-alive" : "life-dead")" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/@(session.Pokemons[i].Id).png" />
+                                    }
+                                </div>
                             </div>
                             <div class="col-md-3">
                                 <strong>Pokédollars:</strong> @session.PokeDollarsEarned 💰
