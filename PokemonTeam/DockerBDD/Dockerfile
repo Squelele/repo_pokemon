@@ -10,13 +10,11 @@ ENV MSSQL_PID=Developer
 COPY init.sql /init.sql
 
 # Lancer SQL Server en arrière-plan, exécuter le script, puis arrêter
-CMD /bin/bash -c "/opt/mssql/bin/sqlservr & \
-    sleep 20 && \
-    /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -i /init.sql && \
-    wait"
-
 # Ouvrir le port SQL Server
 EXPOSE 1433
 
-# Démarrer SQL Server
-CMD ["/opt/mssql/bin/sqlservr"]
+# Démarrer SQL Server et exécuter le script d'initialisation
+CMD /bin/bash -c "/opt/mssql/bin/sqlservr & \
+    sleep 20 && \
+    /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $SA_PASSWORD -i /init.sql && \
+    wait"
