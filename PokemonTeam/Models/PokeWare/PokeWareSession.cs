@@ -30,6 +30,11 @@ public class PokeWareSession
     public int PokeDollarsEarned { get; set; }
 
     /// <summary>
+    /// Nombre total de questions du quiz.
+    /// </summary>
+    public int TotalQuestions => Questions.Count;
+
+    /// <summary>
     /// Retourne <c>true</c> lorsque le joueur n’a plus de vie
     /// ou que toutes les questions ont été posées.
     /// </summary>

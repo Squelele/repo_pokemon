@@ -216,7 +216,6 @@ public class PokeWareController : Controller
     private async Task<string> UseObjectAsync(int objectId, PokeWareSession session)
     {
         var playerObj = await _context.Items
-                                      .Include(po => po.Name)
                                       .FirstOrDefaultAsync(po => po.Id == objectId);
         if (playerObj is null) return "Objet inconnu";
 

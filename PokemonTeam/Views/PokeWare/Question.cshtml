@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Question du Quiz";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var session = HttpContext.Session.GetObject<PokeWareSession>("PokeWareSession");
+    var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
     var currentQuestion = (session?.CurrentQuestionIndex + 1) ?? 1;
     var totalQuestions = session?.TotalQuestions ?? 0;
 }
