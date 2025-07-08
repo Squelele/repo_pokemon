@@ -203,9 +203,6 @@ public class PokeWareController : Controller
 
         var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
 
-        if (player != null && session != null)
-            await SyncPokedollars(player, session);
-
         ViewBag.Pokedollars = (player?.Pokedollar ?? 0) + (session?.PokeDollarsEarned ?? 0);
         return View(items);
     }
@@ -218,10 +215,10 @@ public class PokeWareController : Controller
 
         var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
         if (player == null)
-            return RedirectToAction(nameof(SelectTeam));
-
-        if (session != null)
-            await SyncPokedollars(player, session);
+        {
+            TempData["Error"] = "Joueur non connecté.";
+            return RedirectToAction(nameof(Store));
+        }
 
 
         var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == itemId);
@@ -231,16 +228,34 @@ public class PokeWareController : Controller
             return RedirectToAction(nameof(Store));
         }
 
-        if (player.Pokedollar < item.Price)
+        int available = player.Pokedollar + (session?.PokeDollarsEarned ?? 0);
+        if (available < item.Price)
         {
             TempData["Error"] = "Pokédollars insuffisants.";
             return RedirectToAction(nameof(Store));
         }
 
+        int remaining = item.Price;
+        if (session != null && session.PokeDollarsEarned > 0)
+        {
+            if (session.PokeDollarsEarned >= remaining)
+            {
+                session.PokeDollarsEarned -= remaining;
+                remaining = 0;
+            }
+            else
+            {
+                remaining -= session.PokeDollarsEarned;
+                session.PokeDollarsEarned = 0;
+            }
+            HttpContext.Session.SetObject("QuizSession", session);
+        }
+
+        player.Pokedollar -= remaining;
+
         if (!player.Items.Any(i => i.Id == item.Id))
             player.Items.Add(item);
 
-        player.Pokedollar -= item.Price;
         await _context.SaveChangesAsync();
 
         if (session != null)
