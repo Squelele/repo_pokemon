@@ -81,7 +81,7 @@ INSERT INTO pokemon (name, health_point, strength, defense, speed, max_health_po
                                                                                                        ('Slowbro', 95, 75, 110, 30, 95, NULL),
                                                                                                        ('Magnemite', 25, 35, 70, 45, 25, NULL),
                                                                                                        ('Magneton', 50, 60, 95, 70, 50, NULL),
-                                                                                                       ('Farfetch’d', 52, 90, 55, 60, 52, NULL),
+                                                                                                       ('Farfetch''d', 52, 90, 55, 60, 52, NULL),
                                                                                                        ('Doduo', 35, 85, 45, 75, 35, NULL),
                                                                                                        ('Dodrio', 60, 110, 70, 100, 60, NULL),
                                                                                                        ('Seel', 65, 45, 55, 45, 65, NULL),
