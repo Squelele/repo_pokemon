@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using PokemonTeam.Data;      // injecte PokemonDbContext
 using PokemonTeam.Models;     // Pokemon
 using PokemonTeam.Models.PokeWare;    // Pokemon, PokeWareQuestion, PokeWareSession
-using PokemonTeam.Controllers; // PokemonController
+using System.Security.Claims;
+
+namespace PokemonTeam.Controllers;
 /// <summary>
 /// This controller manages the PokéWare quiz game logic.
 /// </summary>
@@ -21,14 +23,12 @@ using PokemonTeam.Controllers; // PokemonController
 public class PokeWareController : Controller
 {
     private readonly PokemonDbContext _context;
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly PokemonController _pokemonController;
     private readonly Random _rng = new();
 
-    public PokeWareController(PokemonDbContext context, IHttpContextAccessor httpContextAccessor)
+    public PokeWareController(PokemonDbContext context)
     {
         _context = context;
-        _httpContextAccessor = httpContextAccessor;
         _pokemonController = new PokemonController(context);
     }
 
@@ -37,12 +37,7 @@ public class PokeWareController : Controller
     // --------------------------------------------------------------------
     public async Task<IActionResult> SelectTeam()
     {
-        int playerId = GetPlayerId();
-        // Récupère d’abord le Player puis sa collection de Pokémons
-        var player = await _context.Players
-            .Include(p => p.Pokemons)
-                .ThenInclude(pok => pok.Types)
-            .FirstOrDefaultAsync(p => p.Id == GetPlayerId());
+        var player = await GetCurrentPlayer(includePokemons: true);
 
         if (player == null) return RedirectToAction("Index", "Home");
 
@@ -146,10 +141,7 @@ public class PokeWareController : Controller
     // --------------------------------------------------------------------
     public async Task<IActionResult> Shop()
     {
-        int playerId = GetPlayerId();
-        var player = await _context.Players
-            .Include(p => p.Items)
-            .FirstOrDefaultAsync(p => p.Id == GetPlayerId());
+        var player = await GetCurrentPlayer(includeItems: true);
 
         if (player == null) return RedirectToAction("SelectTeam");
 
@@ -192,8 +184,20 @@ public class PokeWareController : Controller
     // --------------------------------------------------------------------
     // Helpers privés
     // --------------------------------------------------------------------
-    private int GetPlayerId()
-        => int.Parse(User.Claims.First(c => c.Type == "PlayerId").Value);
+    private async Task<Player?> GetCurrentPlayer(bool includePokemons = false, bool includeItems = false)
+    {
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;
+        if (string.IsNullOrEmpty(email))
+            return null;
+
+        IQueryable<Player> query = _context.Players.Include(p => p.UserAuth);
+        if (includePokemons)
+            query = query.Include(p => p.Pokemons).ThenInclude(p => p.Types);
+        if (includeItems)
+            query = query.Include(p => p.Items);
+
+        return await query.FirstOrDefaultAsync(p => p.UserAuth.Email == email && p.Game == "pokeWare");
+    }
 
     /// <summary>
     /// Construit une liste de questions à partir de la team.
@@ -231,22 +235,29 @@ public class PokeWareController : Controller
     /// </summary>
     private async Task<string> UseObjectAsync(int objectId, PokeWareSession session)
     {
-        var playerObj = await _context.Items
-                                      .FirstOrDefaultAsync(po => po.Id == objectId);
+        var player = await GetCurrentPlayer(includeItems: true);
+        if (player == null) return "Joueur inconnu";
+
+        var playerObj = player.Items.FirstOrDefault(po => po.Id == objectId);
         if (playerObj is null) return "Objet inconnu";
 
         switch (playerObj.Name)
         {
-            case "REVIVE":
+            case "Potion":
                 session.LivesLeft = Math.Min(session.LivesLeft + 1, 6);
                 break;
-            case "DOUBLE_XP":
+            case "Super Potion":
                 session.Score += 10;
                 break;
-                // autres effets...
+            case "Hyper Potion":
+                session.Score += 20;
+                break;
+            case "Max Potion":
+                session.LivesLeft = 6;
+                break;
         }
 
-        _context.Items.Remove(playerObj);
+        player.Items.Remove(playerObj);
         await _context.SaveChangesAsync();
         return playerObj.Name;
     }
