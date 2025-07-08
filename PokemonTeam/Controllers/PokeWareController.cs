@@ -126,11 +126,14 @@ public class PokeWareController : Controller
     // --------------------------------------------------------------------
     // 3. Affichage et soumission d’une question
     // --------------------------------------------------------------------
-    public IActionResult Question()
+    public async Task<IActionResult> Question()
     {
         var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
         if (session is null || session.IsOver)
             return RedirectToAction(nameof(Result));
+
+        var player = await GetCurrentPlayer();
+        ViewBag.TotalPokedollars = (player?.Pokedollar ?? 0) + session.PokeDollarsEarned;
 
         return View(session.CurrentQuestion);
     }
@@ -197,6 +200,7 @@ public class PokeWareController : Controller
         var items = await _context.Items.ToListAsync();
         var player = await GetCurrentPlayer(includeItems: true);
 
+
         var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
 
         if (player != null && session != null)
@@ -255,13 +259,16 @@ public class PokeWareController : Controller
         int bonus = session.LivesLeft * 10;
         session.Score += bonus;
 
+
+        int earned = session.PokeDollarsEarned;
+
         var player = await GetCurrentPlayer();
         if (player != null)
             await SyncPokedollars(player, session);
 
         ViewBag.FinalScore = session.Score;
         ViewBag.Bonus = bonus;
-        ViewBag.PokeDollars = session.PokeDollarsEarned;
+        ViewBag.PokeDollars = earned;
         return View();
     }
 
