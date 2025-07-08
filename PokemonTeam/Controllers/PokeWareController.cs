@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PokemonTeam.Data;      // injecte PokemonDbContext
-using PokemonTeam.Models.PokeWare;    // Pokemon, Question, PokeWareSession, PlayerObject, Object
+using PokemonTeam.Models.PokeWare;    // Pokemon, PokeWareQuestion, PokeWareSession
 /// <summary>
 /// This controller manages the PokéWare quiz game logic.
 /// </summary>
@@ -183,19 +183,20 @@ public class PokeWareController : Controller
     /// <summary>
     /// Construit une liste de questions à partir de la team.
     /// </summary>
-    private List<Question> GenerateQuiz(List<Pokemon> team, int count)
+    private List<PokeWareQuestion> GenerateQuiz(List<Pokemon> team, int count)
     {
-        var quiz = new List<Question>(count);
+        var quiz = new List<PokeWareQuestion>(count);
         for (int i = 0; i < count; i++)
         {
             var poke = team[_rng.Next(team.Count)];
             string pokeType = poke.Types.Any()
                 ? poke.Types[_rng.Next(poke.Types.Count)].Name
                 : "Inconnu";
-            quiz.Add(new Question
+            quiz.Add(new PokeWareQuestion
             {
-                Text = $"Quel est le type élémentaire de {poke.Name} ?",
-                CorrectAnswer = pokeType
+                QuestionText = $"Quel est le type élémentaire de {poke.name} ?",
+                CorrectAnswer = pokeType,
+                Choices = new List<string> { pokeType }
             });
         }
         return quiz;
@@ -204,7 +205,7 @@ public class PokeWareController : Controller
     /// <summary>
     /// Compare la réponse de l’utilisateur à la bonne réponse.
     /// </summary>
-    private static bool ValidateAnswer(Question q, string? userAnswer)
+    private static bool ValidateAnswer(PokeWareQuestion q, string? userAnswer)
         => q is not null &&
            string.Equals(q.CorrectAnswer?.Trim(),
                          userAnswer?.Trim(),

@@ -22,7 +22,8 @@ using System.Collections.Generic;
 public class PokeWareSession
 {
     public List<Pokemon> Pokemons { get; set; } = new();
-    public List<Question> Questions { get; set; } = new();
+    // Liste des questions générées pour ce quiz
+    public List<PokeWareQuestion> Questions { get; set; } = new();
 
     public int CurrentQuestionIndex { get; set; }
     public int LivesLeft { get; set; } = 6;
@@ -43,7 +44,7 @@ public class PokeWareSession
     /// <summary>
     /// Question en cours ; <c>null</c> si l’index dépasse la liste.
     /// </summary>
-    public Question? CurrentQuestion =>
+    public PokeWareQuestion? CurrentQuestion =>
         (CurrentQuestionIndex >= 0 && CurrentQuestionIndex < Questions.Count)
             ? Questions[CurrentQuestionIndex]
             : null;
