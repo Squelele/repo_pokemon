@@ -243,6 +243,14 @@ public class PokeWareController : Controller
         player.Pokedollar -= item.Price;
         await _context.SaveChangesAsync();
 
+        if (session != null)
+        {
+            string effect = await UseObjectAsync(itemId, session);
+            HttpContext.Session.SetObject("QuizSession", session);
+            TempData["Message"] = $"{item.Name} acheté et utilisé : {effect}";
+            return RedirectToAction(nameof(Question));
+        }
+
         TempData["Message"] = $"{item.Name} acheté !";
         return RedirectToAction(nameof(Store));
     }
