@@ -64,18 +64,18 @@ public class PokeWareController : Controller
             return RedirectToAction(nameof(SelectTeam));
         }
 
-        var pokemons = new List<Pokemon>();
-        foreach (var id in selectedPokemonIds)
+        // Récupérer directement les Pokémon depuis la base sans passer par
+        // PokemonController. L'appel direct au contrôleur retournait toujours
+        // une ActionResult sans valeur, ce qui laissait la liste vide.
+        var pokemons = await _context.Pokemons
+            .Include(p => p.Types)
+            .Where(p => selectedPokemonIds.Contains(p.Id))
+            .ToListAsync();
+
+        if (pokemons.Count != selectedPokemonIds.Count)
         {
-            var result = await _pokemonController.GetPokemonById(id);
-            if (result.Value != null)
-            {
-                var poke = await _context.Pokemons
-                    .Include(p => p.Types)
-                    .FirstOrDefaultAsync(p => p.Id == id);
-                if (poke != null)
-                    pokemons.Add(poke);
-            }
+            TempData["Error"] = "Une erreur est survenue lors de la sélection des Pokémon.";
+            return RedirectToAction(nameof(SelectTeam));
         }
 
         var session = new PokeWareSession
