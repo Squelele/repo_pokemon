@@ -218,7 +218,10 @@ public class PokeWareController : Controller
 
         var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
         if (player == null)
-            return RedirectToAction(nameof(SelectTeam));
+        {
+            TempData["Error"] = "Joueur non connecté.";
+            return RedirectToAction(nameof(Store));
+        }
 
         if (session != null)
             await SyncPokedollars(player, session);
