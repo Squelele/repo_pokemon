@@ -39,9 +39,19 @@ public class PokeWareController : Controller
     {
         var player = await GetCurrentPlayer(includePokemons: true);
 
-        if (player == null) return RedirectToAction("Index", "Home");
+        List<Pokemon> pokemons;
+        if (player == null)
+        {
+            // Fallback : afficher tous les Pokémon si aucun joueur connecté
+            pokemons = await _context.Pokemons
+                .Include(p => p.Types)
+                .ToListAsync();
+        }
+        else
+        {
+            pokemons = player.Pokemons;
+        }
 
-        var pokemons = player.Pokemons;
         return View(pokemons);
     }
 
