@@ -330,6 +330,7 @@ public class PokeWareController : Controller
                 quiz.Add(new PokeWareQuestion
                 {
                     QuestionText = $"Quel est le type élémentaire de {poke.name} ?",
+                    ImageUrl = null, // ensure text questions have no image
                     CorrectAnswer = correct,
                     Choices = choices.OrderBy(_ => _rng.Next()).ToList()
                 });
