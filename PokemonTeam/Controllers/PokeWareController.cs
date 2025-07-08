@@ -122,11 +122,14 @@ public class PokeWareController : Controller
     // --------------------------------------------------------------------
     // 3. Affichage et soumission d’une question
     // --------------------------------------------------------------------
-    public IActionResult Question()
+    public async Task<IActionResult> Question()
     {
         var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
         if (session is null || session.IsOver)
             return RedirectToAction(nameof(Result));
+
+        var player = await GetCurrentPlayer();
+        ViewBag.TotalPokedollars = (player?.Pokedollar ?? 0) + session.PokeDollarsEarned;
 
         return View(session.CurrentQuestion);
     }
@@ -186,9 +189,60 @@ public class PokeWareController : Controller
     }
 
     // --------------------------------------------------------------------
+    // 4b. Boutique d'achat d'objets
+    // --------------------------------------------------------------------
+    public async Task<IActionResult> Store()
+    {
+        var items = await _context.Items.ToListAsync();
+        var player = await GetCurrentPlayer(includeItems: true);
+        var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
+
+        if (player != null && session != null)
+            await SyncPokedollars(player, session);
+
+        ViewBag.Pokedollars = player?.Pokedollar ?? 0;
+        return View(items);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> BuyItem(int itemId)
+    {
+        var player = await GetCurrentPlayer(includeItems: true);
+        var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
+        if (player == null)
+            return RedirectToAction(nameof(SelectTeam));
+
+        if (session != null)
+            await SyncPokedollars(player, session);
+
+        var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == itemId);
+        if (item == null)
+        {
+            TempData["Error"] = "Objet introuvable.";
+            return RedirectToAction(nameof(Store));
+        }
+
+        if (player.Pokedollar < item.Price)
+        {
+            TempData["Error"] = "Pokédollars insuffisants.";
+            return RedirectToAction(nameof(Store));
+        }
+
+        if (!player.Items.Any(i => i.Id == item.Id))
+            player.Items.Add(item);
+
+        player.Pokedollar -= item.Price;
+        await _context.SaveChangesAsync();
+
+        TempData["Message"] = $"{item.Name} acheté !";
+        return RedirectToAction(nameof(Store));
+    }
+
+    // --------------------------------------------------------------------
     // 5. Résultat final
     // --------------------------------------------------------------------
-    public IActionResult Result()
+    public async Task<IActionResult> Result()
     {
         var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
         if (session is null)
@@ -197,9 +251,14 @@ public class PokeWareController : Controller
         int bonus = session.LivesLeft * 10;
         session.Score += bonus;
 
+        int earned = session.PokeDollarsEarned;
+        var player = await GetCurrentPlayer();
+        if (player != null)
+            await SyncPokedollars(player, session);
+
         ViewBag.FinalScore = session.Score;
         ViewBag.Bonus = bonus;
-        ViewBag.PokeDollars = session.PokeDollarsEarned;
+        ViewBag.PokeDollars = earned;
         return View();
     }
 
@@ -285,5 +344,19 @@ public class PokeWareController : Controller
         player.Items.Remove(playerObj);
         await _context.SaveChangesAsync();
         return playerObj.Name;
+    }
+
+    /// <summary>
+    /// Synchronise les Pokédollars gagnés pendant la partie avec le joueur.
+    /// </summary>
+    private async Task SyncPokedollars(Player player, PokeWareSession session)
+    {
+        if (session.PokeDollarsEarned > 0)
+        {
+            player.Pokedollar += session.PokeDollarsEarned;
+            session.PokeDollarsEarned = 0;
+            HttpContext.Session.SetObject("QuizSession", session);
+            await _context.SaveChangesAsync();
+        }
     }
 }

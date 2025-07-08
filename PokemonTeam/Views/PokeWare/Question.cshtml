@@ -8,6 +8,7 @@
     var session = Context.Session.GetObject<PokeWareSession>("QuizSession");
     var currentQuestion = (session?.CurrentQuestionIndex + 1) ?? 1;
     var totalQuestions = session?.TotalQuestions ?? 0;
+    var totalPokeDollars = ViewBag.TotalPokedollars ?? (session?.PokeDollarsEarned ?? 0);
 }
 
 <div class="container mt-4">
@@ -94,10 +95,10 @@
                                 <strong>Vies:</strong> @session.LivesLeft ❤️
                             </div>
                             <div class="col-md-3">
-                                <strong>Pokédollars:</strong> @session.PokeDollarsEarned 💰
+                                <strong>Pokédollars:</strong> @totalPokeDollars 💰
                             </div>
                             <div class="col-md-3">
-                                <a class="btn btn-sm btn-secondary" asp-action="Shop">
+                                <a class="btn btn-sm btn-secondary" asp-action="Store">
                                     <i class="fas fa-shopping-cart"></i> Boutique
                                 </a>
                             </div>
