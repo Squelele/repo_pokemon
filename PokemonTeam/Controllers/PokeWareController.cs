@@ -217,10 +217,10 @@ public class PokeWareController : Controller
         var player = await GetCurrentPlayer(includeItems: true);
 
         var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
-        if (player == null)
+        if (session == null)
             return RedirectToAction(nameof(SelectTeam));
 
-        if (session != null)
+        if (player != null)
             await SyncPokedollars(player, session);
 
 
@@ -231,20 +231,33 @@ public class PokeWareController : Controller
             return RedirectToAction(nameof(Store));
         }
 
-        if (player.Pokedollar < item.Price)
+        int available = (player?.Pokedollar ?? 0) + session.PokeDollarsEarned;
+        if (available < item.Price)
         {
             TempData["Error"] = "Pokédollars insuffisants.";
             return RedirectToAction(nameof(Store));
         }
 
-        if (!player.Items.Any(i => i.Id == item.Id))
-            player.Items.Add(item);
+        if (player != null)
+        {
+            if (!player.Items.Any(i => i.Id == item.Id))
+                player.Items.Add(item);
+            player.Pokedollar -= item.Price;
+        }
+        else
+        {
+            session.PokeDollarsEarned -= item.Price;
+        }
 
-        player.Pokedollar -= item.Price;
         await _context.SaveChangesAsync();
 
-        TempData["Message"] = $"{item.Name} acheté !";
-        return RedirectToAction(nameof(Store));
+        string effect = player != null
+            ? await UseObjectAsync(itemId, session)
+            : ApplyItemEffect(item.Name, session);
+
+        HttpContext.Session.SetObject("QuizSession", session);
+        TempData["Message"] = $"{item.Name} acheté et utilisé : {effect}";
+        return RedirectToAction(nameof(Question));
     }
 
     // --------------------------------------------------------------------
@@ -348,17 +361,11 @@ public class PokeWareController : Controller
                          StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Applique l’effet d’un objet et retourne sa description.
+    /// Applique localement l’effet d’un objet.
     /// </summary>
-    private async Task<string> UseObjectAsync(int objectId, PokeWareSession session)
+    private static string ApplyItemEffect(string itemName, PokeWareSession session)
     {
-        var player = await GetCurrentPlayer(includeItems: true);
-        if (player == null) return "Joueur inconnu";
-
-        var playerObj = player.Items.FirstOrDefault(po => po.Id == objectId);
-        if (playerObj is null) return "Objet inconnu";
-
-        switch (playerObj.Name)
+        switch (itemName)
         {
             case "Potion":
                 session.LivesLeft = Math.Min(session.LivesLeft + 1, 6);
@@ -373,6 +380,22 @@ public class PokeWareController : Controller
                 session.LivesLeft = 6;
                 break;
         }
+
+        return itemName;
+    }
+
+    /// <summary>
+    /// Applique l’effet d’un objet et retourne sa description.
+    /// </summary>
+    private async Task<string> UseObjectAsync(int objectId, PokeWareSession session)
+    {
+        var player = await GetCurrentPlayer(includeItems: true);
+        if (player == null) return "Joueur inconnu";
+
+        var playerObj = player.Items.FirstOrDefault(po => po.Id == objectId);
+        if (playerObj is null) return "Objet inconnu";
+
+        ApplyItemEffect(playerObj.Name, session);
 
         player.Items.Remove(playerObj);
         await _context.SaveChangesAsync();
