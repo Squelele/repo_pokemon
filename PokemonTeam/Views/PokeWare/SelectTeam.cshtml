@@ -1,6 +1,6 @@
 @model List<Pokemon>
 @{
-    ViewData["Title"] = "Sélection de ton équipe";
+    ViewData["Title"] = "SÃ©lection de ton Ã©quipe";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -8,8 +8,8 @@
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <div class="text-center mb-4">
-                <h2 class="display-5 fw-bold text-primary">Sélectionne ton équipe de 6 Pokémon</h2>
-                <p class="lead text-muted">Choisis stratégiquement tes compagnons pour former l'équipe parfaite</p>
+                <h2 class="display-5 fw-bold text-primary">SÃ©lectionne ton Ã©quipe de 6 PokÃ©mon</h2>
+                <p class="lead text-muted">Choisis stratÃ©giquement tes compagnons pour former l'Ã©quipe parfaite</p>
             </div>
 
             @if (TempData["Error"] != null)
@@ -24,7 +24,7 @@
             <form method="post" asp-action="ConfirmTeam" id="teamSelectionForm">
                 <div class="mb-3">
                     <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted">Pokémon sélectionnés :</span>
+                        <span class="text-muted">PokÃ©mon sÃ©lectionnÃ©s :</span>
                         <span id="selectionCounter" class="badge bg-secondary">0/6</span>
                     </div>
                 </div>
@@ -73,7 +73,7 @@
                                                id="pokemon_@Model[i].Id"
                                                role="switch" />
                                         <label class="form-check-label ms-2" for="pokemon_@Model[i].Id">
-                                            Sélectionner
+                                            SÃ©lectionner
                                         </label>
                                     </div>
                                 </div>
@@ -85,7 +85,7 @@
                 <div class="text-center mt-4">
                     <button type="submit" class="btn btn-primary btn-lg" id="confirmButton" disabled>
                         <i class="fas fa-check me-2"></i>
-                        Valider mon équipe
+                        Valider mon Ã©quipe
                     </button>
                 </div>
             </form>
@@ -148,14 +148,14 @@
             function updateUI() {
                 const selectedCount = document.querySelectorAll('.pokemon-checkbox:checked').length;
 
-                // Mettre à jour le compteur
+                // Mettre Ã  jour le compteur
                 selectionCounter.textContent = `${selectedCount}/${maxSelection}`;
                 selectionCounter.className = `badge ${selectedCount === maxSelection ? 'bg-success' : 'bg-secondary'}`;
 
-                // Activer/désactiver le bouton de validation
+                // Activer/dÃ©sactiver le bouton de validation
                 confirmButton.disabled = selectedCount === 0;
 
-                // Gérer l'état visuel des cartes
+                // GÃ©rer l'Ã©tat visuel des cartes
                 checkboxes.forEach(checkbox => {
                     const card = checkbox.closest('.pokemon-card');
                     if (checkbox.checked) {
@@ -164,7 +164,7 @@
                         card.classList.remove('selected');
                     }
 
-                    // Désactiver les cases non cochées si limite atteinte
+                    // DÃ©sactiver les cases non cochÃ©es si limite atteinte
                     if (selectedCount >= maxSelection && !checkbox.checked) {
                         checkbox.disabled = true;
                         card.style.opacity = '0.6';
@@ -175,14 +175,14 @@
                 });
             }
 
-            // Ajouter les événements
+            // Ajouter les Ã©vÃ©nements
             checkboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
                     const selectedCount = document.querySelectorAll('.pokemon-checkbox:checked').length;
 
                     if (selectedCount > maxSelection) {
                         this.checked = false;
-                        showAlert('Tu ne peux choisir que 6 Pokémon maximum !', 'warning');
+                        showAlert('Tu ne peux choisir que 6 PokÃ©mon maximum !', 'warning');
                     }
 
                     updateUI();
@@ -195,10 +195,10 @@
 
                 if (selectedCount === 0) {
                     e.preventDefault();
-                    showAlert('Tu dois sélectionner au moins un Pokémon !', 'danger');
+                    showAlert('Tu dois sÃ©lectionner au moins un PokÃ©mon !', 'danger');
                 } else if (selectedCount > maxSelection) {
                     e.preventDefault();
-                    showAlert(`Tu ne peux pas sélectionner plus de ${maxSelection} Pokémon !`, 'danger');
+                    showAlert(`Tu ne peux pas sÃ©lectionner plus de ${maxSelection} PokÃ©mon !`, 'danger');
                 }
             });
 
@@ -214,7 +214,7 @@
                 const container = document.querySelector('.container');
                 container.insertBefore(alertDiv, container.firstChild);
 
-                // Auto-dismiss après 5 secondes
+                // Auto-dismiss aprÃ¨s 5 secondes
                 setTimeout(() => {
                     if (alertDiv.parentNode) {
                         alertDiv.remove();
