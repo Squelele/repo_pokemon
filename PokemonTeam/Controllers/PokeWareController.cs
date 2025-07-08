@@ -206,7 +206,7 @@ public class PokeWareController : Controller
         if (player != null && session != null)
             await SyncPokedollars(player, session);
 
-        ViewBag.Pokedollars = player?.Pokedollar ?? 0;
+        ViewBag.Pokedollars = (player?.Pokedollar ?? 0) + (session?.PokeDollarsEarned ?? 0);
         return View(items);
     }
 
