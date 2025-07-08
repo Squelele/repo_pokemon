@@ -197,6 +197,11 @@ public class PokeWareController : Controller
         var items = await _context.Items.ToListAsync();
         var player = await GetCurrentPlayer(includeItems: true);
 
+        var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
+
+        if (player != null && session != null)
+            await SyncPokedollars(player, session);
+
         ViewBag.Pokedollars = player?.Pokedollar ?? 0;
         return View(items);
     }
@@ -206,8 +211,14 @@ public class PokeWareController : Controller
     public async Task<IActionResult> BuyItem(int itemId)
     {
         var player = await GetCurrentPlayer(includeItems: true);
+
+        var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
         if (player == null)
             return RedirectToAction(nameof(SelectTeam));
+
+        if (session != null)
+            await SyncPokedollars(player, session);
+
 
         var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == itemId);
         if (item == null)
@@ -235,7 +246,7 @@ public class PokeWareController : Controller
     // --------------------------------------------------------------------
     // 5. Résultat final
     // --------------------------------------------------------------------
-    public IActionResult Result()
+    public async Task<IActionResult> Result()
     {
         var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
         if (session is null)
@@ -243,6 +254,10 @@ public class PokeWareController : Controller
 
         int bonus = session.LivesLeft * 10;
         session.Score += bonus;
+
+        var player = await GetCurrentPlayer();
+        if (player != null)
+            await SyncPokedollars(player, session);
 
         ViewBag.FinalScore = session.Score;
         ViewBag.Bonus = bonus;
@@ -355,5 +370,19 @@ public class PokeWareController : Controller
         player.Items.Remove(playerObj);
         await _context.SaveChangesAsync();
         return playerObj.Name;
+    }
+
+    /// <summary>
+    /// Synchronise les Pokédollars gagnés pendant la partie avec le joueur.
+    /// </summary>
+    private async Task SyncPokedollars(Player player, PokeWareSession session)
+    {
+        if (session.PokeDollarsEarned > 0)
+        {
+            player.Pokedollar += session.PokeDollarsEarned;
+            session.PokeDollarsEarned = 0;
+            HttpContext.Session.SetObject("QuizSession", session);
+            await _context.SaveChangesAsync();
+        }
     }
 }
