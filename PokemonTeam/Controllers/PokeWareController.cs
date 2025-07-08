@@ -116,7 +116,7 @@ public class PokeWareController : Controller
             return RedirectToAction(nameof(SelectMode));
         }
 
-        session.Questions = await GenerateQuizAsync(session.Pokemons, numberOfQuestions);
+        session.Questions = await GenerateQuizAsync(numberOfQuestions);
         session.CurrentQuestionIndex = 0;
         HttpContext.Session.SetObject("QuizSession", session);
 
@@ -302,11 +302,24 @@ public class PokeWareController : Controller
     }
 
     /// <summary>
+    /// Récupère un Pokémon aléatoire dans la base avec ses types chargés.
+    /// </summary>
+    private async Task<Pokemon> GetRandomPokemonFromDbAsync()
+    {
+        int total = await _context.Pokemons.CountAsync();
+        int skip = _rng.Next(total);
+        return await _context.Pokemons
+                             .Include(p => p.Types)
+                             .Skip(skip)
+                             .FirstAsync();
+    }
+
+    /// <summary>
     /// Construit une liste de questions aléatoires.
     /// </summary>
-    private async Task<List<PokeWareQuestion>> GenerateQuizAsync(List<Pokemon> team, int count)
+    private async Task<List<PokeWareQuestion>> GenerateQuizAsync(int count)
     {
-        if (team == null || team.Count == 0 || count <= 0)
+        if (count <= 0)
             return new List<PokeWareQuestion>();
 
         var quiz = new List<PokeWareQuestion>(count);
@@ -316,7 +329,7 @@ public class PokeWareController : Controller
         {
             if (_rng.Next(2) == 0)
             {
-                var poke = team[_rng.Next(team.Count)];
+                var poke = await GetRandomPokemonFromDbAsync();
                 string correct = poke.Types.Any()
                     ? poke.Types[_rng.Next(poke.Types.Count)].Name
                     : "normal";
@@ -329,7 +342,10 @@ public class PokeWareController : Controller
 
                 quiz.Add(new PokeWareQuestion
                 {
-                    QuestionText = $"Quel est le type élémentaire de {poke.name} ?",
+                    // Use the capitalized alias to avoid null values when the
+                    // lowercase property isn't loaded by EF.
+                    QuestionText = $"Quel est le type élémentaire de {poke.Name} ?",
+                    ImageUrl = null, // ensure text questions have no image
                     CorrectAnswer = correct,
                     Choices = choices.OrderBy(_ => _rng.Next()).ToList()
                 });
