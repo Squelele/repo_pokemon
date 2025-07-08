@@ -165,6 +165,31 @@ public class PokeWareController : Controller
         return RedirectToAction(nameof(Question));
     }
 
+    /// <summary>
+    /// Skip the current question when the special bouncing Pokémon is clicked.
+    /// </summary>
+    [HttpPost]
+    public IActionResult SkipQuestion()
+    {
+        var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
+        if (session is null)
+        {
+            return Json(new { redirect = Url.Action(nameof(SelectTeam)) });
+        }
+
+        if (!session.IsOver)
+            session.CurrentQuestionIndex++;
+
+        HttpContext.Session.SetObject("QuizSession", session);
+
+        if (session.IsOver)
+        {
+            return Json(new { redirect = Url.Action(nameof(Result)) });
+        }
+
+        return Json(new { redirect = Url.Action(nameof(Question)) });
+    }
+
     // --------------------------------------------------------------------
     // 4. Boutique d’objets
     // --------------------------------------------------------------------
