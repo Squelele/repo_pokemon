@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PokemonTeam.Data;      // injecte PokemonDbContext
+using PokemonTeam.Models;     // Pokemon
 using PokemonTeam.Models.PokeWare;    // Pokemon, PokeWareQuestion, PokeWareSession
+using PokemonTeam.Controllers; // PokemonController
 /// <summary>
 /// This controller manages the PokéWare quiz game logic.
 /// </summary>
@@ -20,12 +22,14 @@ public class PokeWareController : Controller
 {
     private readonly PokemonDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly PokemonController _pokemonController;
     private readonly Random _rng = new();
 
     public PokeWareController(PokemonDbContext context, IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
         _httpContextAccessor = httpContextAccessor;
+        _pokemonController = new PokemonController(context);
     }
 
     // --------------------------------------------------------------------
@@ -55,12 +59,23 @@ public class PokeWareController : Controller
             return RedirectToAction(nameof(SelectTeam));
         }
 
+        var pokemons = new List<Pokemon>();
+        foreach (var id in selectedPokemonIds)
+        {
+            var result = await _pokemonController.GetPokemonById(id);
+            if (result.Value != null)
+            {
+                var poke = await _context.Pokemons
+                    .Include(p => p.Types)
+                    .FirstOrDefaultAsync(p => p.Id == id);
+                if (poke != null)
+                    pokemons.Add(poke);
+            }
+        }
+
         var session = new PokeWareSession
         {
-            Pokemons = await _context.Pokemons
-                                     .Include(p => p.Types)
-                                     .Where(p => selectedPokemonIds.Contains(p.Id))
-                                     .ToListAsync(),
+            Pokemons = pokemons,
             LivesLeft = 6
         };
 
