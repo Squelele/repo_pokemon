@@ -100,6 +100,18 @@ public class PokeWareController : Controller
         if (session is null)
             return RedirectToAction(nameof(SelectTeam));
 
+        if (session.Pokemons == null || session.Pokemons.Count == 0)
+        {
+            TempData["Error"] = "Aucune équipe sélectionnée.";
+            return RedirectToAction(nameof(SelectTeam));
+        }
+
+        if (numberOfQuestions <= 0)
+        {
+            TempData["Error"] = "Le nombre de questions doit être positif.";
+            return RedirectToAction(nameof(SelectMode));
+        }
+
         session.Questions = GenerateQuiz(session.Pokemons, numberOfQuestions);
         session.CurrentQuestionIndex = 0;
         HttpContext.Session.SetObject("QuizSession", session);
@@ -214,6 +226,9 @@ public class PokeWareController : Controller
     /// </summary>
     private List<PokeWareQuestion> GenerateQuiz(List<Pokemon> team, int count)
     {
+        if (team == null || team.Count == 0 || count <= 0)
+            return new List<PokeWareQuestion>();
+
         var quiz = new List<PokeWareQuestion>(count);
         for (int i = 0; i < count; i++)
         {
