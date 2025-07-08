@@ -3,7 +3,9 @@
 @{
     ViewData["Title"] = "Question du Quiz";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var session = HttpContext.Session.GetObject<PokeWareSession>("QuizSession");
+    // HttpContext isn't available as a static property inside Razor views.
+    // Use the view context's HttpContext instance to access the session.
+    var session = Context.Session.GetObject<PokeWareSession>("QuizSession");
     var currentQuestion = (session?.CurrentQuestionIndex + 1) ?? 1;
     var totalQuestions = session?.TotalQuestions ?? 0;
 }
