@@ -91,7 +91,7 @@
                             </div>
                             <div class="col-md-3">
                                 <strong>Vies:</strong>
-                                <div class="d-flex justify-content-center mt-1">
+                                <div class="d-flex justify-content-center mt-1" id="lifeContainer">
                                     @for (int i = 0; i < session.Pokemons.Count; i++)
                                     {
                                         var alive = i < session.LivesLeft;
@@ -141,5 +141,20 @@
             });
             this.classList.add('btn-primary');
             this.classList.remove('btn-outline-primary');
-        });
-    });</script>
+        });    });
+
+    // Highlight one random life Pokémon and allow skipping the question
+    window.addEventListener('load', () => {
+        const lives = document.querySelectorAll('#lifeContainer .life-alive');
+        if (lives.length === 0) return;
+        const special = lives[Math.floor(Math.random() * lives.length)];
+        special.classList.add('life-special');
+        special.addEventListener('click', () => {
+            fetch('/PokeWare/SkipQuestion', { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.redirect) window.location.href = data.redirect;
+                });
+        }, { once: true });
+    });
+</script>
