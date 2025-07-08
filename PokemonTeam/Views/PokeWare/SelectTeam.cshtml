@@ -36,7 +36,7 @@
                             <div class="card h-100 pokemon-card" data-pokemon-id="@Model[i].Id">
                                 <div class="card-body d-flex flex-column">
                                     <h5 class="card-title text-center mb-3">
-                                        <span class="fw-bold">@Model[i].Name</span>
+                                        <span class="fw-bold">@Model[i].name</span>
                                     </h5>
 
                                     <div class="pokemon-stats mb-3 flex-grow-1">
@@ -44,21 +44,21 @@
                                             <div class="col-4">
                                                 <div class="stat-item">
                                                     <i class="fas fa-heart text-danger"></i>
-                                                    <div class="stat-value">@Model[i].HealthPoint</div>
+                                                    <div class="stat-value">@Model[i].healthPoint</div>
                                                     <small class="text-muted">PV</small>
                                                 </div>
                                             </div>
                                             <div class="col-4">
                                                 <div class="stat-item">
                                                     <i class="fas fa-fist-raised text-warning"></i>
-                                                    <div class="stat-value">@Model[i].Strength</div>
+                                                    <div class="stat-value">@Model[i].strength</div>
                                                     <small class="text-muted">Force</small>
                                                 </div>
                                             </div>
                                             <div class="col-4">
                                                 <div class="stat-item">
                                                     <i class="fas fa-bolt text-success"></i>
-                                                    <div class="stat-value">@Model[i].Speed</div>
+                                                    <div class="stat-value">@Model[i].speed</div>
                                                     <small class="text-muted">Vitesse</small>
                                                 </div>
                                             </div>
