@@ -151,13 +151,18 @@
     text-align: center;
     padding: 10px;
     cursor: pointer;
-    width: 120px;
+    width: 160px;
     transition: all 0.2s ease-in-out;
 }
 
 .pokemon-card img {
     width: 80px;
     height: 80px;
+}
+
+.pokemon-card .card-title,
+.pokemon-card p {
+    white-space: nowrap;
 }
 
 .pokemon-card:hover {
@@ -200,7 +205,7 @@
 /* Sélection runners */
 #runnersSelection {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 12px;
     max-height: 400px;
     overflow-y: auto;
