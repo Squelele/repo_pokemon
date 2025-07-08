@@ -133,17 +133,13 @@
 </style>
 
 <script>
-    // Empêcher la soumission multiple
-    document.getElementById('answerForm').addEventListener('submit', function(e) {
-        const buttons = document.querySelectorAll('.answer-btn');
-        buttons.forEach(btn => btn.disabled = true);
-    });
-
-    // Ajouter un feedback visuel
+    // Empêcher les doubles clics sans désactiver le bouton choisi
     document.querySelectorAll('.answer-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.answer-btn').forEach(b => {
+                if (b !== this) b.disabled = true;
+            });
             this.classList.add('btn-primary');
             this.classList.remove('btn-outline-primary');
         });
-    });
-</script>
+    });</script>
