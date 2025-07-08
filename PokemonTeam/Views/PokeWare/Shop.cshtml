@@ -67,8 +67,8 @@
                                         <small class="text-muted">Potions</small>
                                     </div>
                                     <div class="col-md-4">
-                                        <h5 class="text-warning">@Model.Count(x => x.Name.Contains("Élixir"))</h5>
-                                        <small class="text-muted">Élixirs</small>
+                                        <h5 class="text-warning">@Model.Count(x => x.Name.Contains("Super"))</h5>
+                                        <small class="text-muted">Supers potions</small>
                                     </div>
                                 </div>
                             </div>
@@ -144,15 +144,15 @@
                                 <div class="col-md-6">
                                     <h6><i class="fas fa-heart text-danger"></i> Objets de soin</h6>
                                     <ul class="list-unstyled">
-                                        <li><strong>Potion:</strong> Restaure 1 point de vie</li>
-                                        <li><strong>Baie Sitrus:</strong> Protège de la prochaine erreur</li>
+                                        <li><strong>Potion :</strong> Restaure 1 point de vie</li>
+                                        <li><strong>Max Potion :</strong> Restaure toutes les vies</li>
                                     </ul>
                                 </div>
                                 <div class="col-md-6">
                                     <h6><i class="fas fa-star text-warning"></i> Objets de boost</h6>
                                     <ul class="list-unstyled">
-                                        <li><strong>Élixir:</strong> Passe automatiquement une question</li>
-                                        <li><strong>Bonbon:</strong> Ajoute 10 points à ton score</li>
+                                        <li><strong>Super Potion :</strong> Ajoute 10 points</li>
+                                        <li><strong>Hyper Potion :</strong> Ajoute 20 points</li>
                                     </ul>
                                 </div>
                             </div>
@@ -313,9 +313,9 @@
         return name switch
         {
             "Potion" => "+1 vie",
-            "Élixir" => "Passer une question",
-            "Baie Sitrus" => "Protège d'une erreur",
-            "Bonbon" => "+10 points",
+            "Super Potion" => "+10 points",
+            "Hyper Potion" => "+20 points",
+            "Max Potion" => "Vies au maximum",
             _ => "Effet inconnu"
         };
     }
@@ -325,9 +325,9 @@
         return name switch
         {
             "Potion" => "<i class='fas fa-heart text-danger'></i>",
-            "Élixir" => "<i class='fas fa-magic text-primary'></i>",
-            "Baie Sitrus" => "<i class='fas fa-shield-alt text-success'></i>",
-            "Bonbon" => "<i class='fas fa-star text-warning'></i>",
+            "Super Potion" => "<i class='fas fa-star text-primary'></i>",
+            "Hyper Potion" => "<i class='fas fa-bolt text-warning'></i>",
+            "Max Potion" => "<i class='fas fa-crown text-success'></i>",
             _ => "<i class='fas fa-question text-muted'></i>"
         };
     }
@@ -336,11 +336,11 @@
     {
         return name switch
         {
-            "Potion" => "Une potion magique qui restaure tes points de vie.",
-            "Élixir" => "Un élixir mystérieux qui te permet de passer une question difficile.",
-            "Baie Sitrus" => "Une baie protectrice qui absorbe une erreur.",
-            "Bonbon" => "Un bonbon énergisant qui booste ton score.",
-            _ => "Un objet mystérieux aux effets inconnus."
+            "Potion" => "Restaure légèrement tes PV.",
+            "Super Potion" => "Augmente ton score de 10 points.",
+            "Hyper Potion" => "Augmente ton score de 20 points.",
+            "Max Potion" => "Restaure toutes tes vies.",
+            _ => "Objet mystérieux."
         };
     }
 
@@ -349,9 +349,9 @@
         return name switch
         {
             "Potion" => "Soin",
-            "Élixir" => "Boost",
-            "Baie Sitrus" => "Protection",
-            "Bonbon" => "Boost",
+            "Super Potion" => "Boost",
+            "Hyper Potion" => "Boost",
+            "Max Potion" => "Soin",
             _ => "Inconnu"
         };
     }
@@ -361,9 +361,9 @@
         return name switch
         {
             "Potion" => "bg-danger",
-            "Élixir" => "bg-primary",
-            "Baie Sitrus" => "bg-success",
-            "Bonbon" => "bg-warning text-dark",
+            "Super Potion" => "bg-primary",
+            "Hyper Potion" => "bg-warning text-dark",
+            "Max Potion" => "bg-success",
             _ => "bg-secondary"
         };
     }
@@ -373,9 +373,9 @@
         return name switch
         {
             "Potion" => "btn-danger",
-            "Élixir" => "btn-primary",
-            "Baie Sitrus" => "btn-success",
-            "Bonbon" => "btn-warning",
+            "Super Potion" => "btn-primary",
+            "Hyper Potion" => "btn-warning",
+            "Max Potion" => "btn-success",
             _ => "btn-secondary"
         };
     }
@@ -385,9 +385,9 @@
         return name switch
         {
             "Potion" => "<span class='rarity-common'>★☆☆☆☆ Commun</span>",
-            "Élixir" => "<span class='rarity-rare'>★★★☆☆ Rare</span>",
-            "Baie Sitrus" => "<span class='rarity-uncommon'>★★☆☆☆ Peu commun</span>",
-            "Bonbon" => "<span class='rarity-epic'>★★★★☆ Épique</span>",
+            "Super Potion" => "<span class='rarity-uncommon'>★★☆☆☆ Peu commun</span>",
+            "Hyper Potion" => "<span class='rarity-rare'>★★★☆☆ Rare</span>",
+            "Max Potion" => "<span class='rarity-epic'>★★★★☆ Épique</span>",
             _ => "<span class='rarity-common'>★☆☆☆☆ Commun</span>"
         };
     }
