@@ -186,6 +186,49 @@ public class PokeWareController : Controller
     }
 
     // --------------------------------------------------------------------
+    // 4b. Boutique d'achat d'objets
+    // --------------------------------------------------------------------
+    public async Task<IActionResult> Store()
+    {
+        var items = await _context.Items.ToListAsync();
+        var player = await GetCurrentPlayer(includeItems: true);
+
+        ViewBag.Pokedollars = player?.Pokedollar ?? 0;
+        return View(items);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> BuyItem(int itemId)
+    {
+        var player = await GetCurrentPlayer(includeItems: true);
+        if (player == null)
+            return RedirectToAction(nameof(SelectTeam));
+
+        var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == itemId);
+        if (item == null)
+        {
+            TempData["Error"] = "Objet introuvable.";
+            return RedirectToAction(nameof(Store));
+        }
+
+        if (player.Pokedollar < item.Price)
+        {
+            TempData["Error"] = "Pokédollars insuffisants.";
+            return RedirectToAction(nameof(Store));
+        }
+
+        if (!player.Items.Any(i => i.Id == item.Id))
+            player.Items.Add(item);
+
+        player.Pokedollar -= item.Price;
+        await _context.SaveChangesAsync();
+
+        TempData["Message"] = $"{item.Name} acheté !";
+        return RedirectToAction(nameof(Store));
+    }
+
+    // --------------------------------------------------------------------
     // 5. Résultat final
     // --------------------------------------------------------------------
     public IActionResult Result()
