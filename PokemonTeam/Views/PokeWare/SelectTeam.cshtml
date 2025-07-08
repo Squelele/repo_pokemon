@@ -39,6 +39,12 @@
                                         <span class="fw-bold">@Model[i].name</span>
                                     </h5>
 
+                                    <div class="text-center mb-3">
+                                        <img class="pokemon-image"
+                                             src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/@Model[i].Id.png"
+                                             alt="@Model[i].name" />
+                                    </div>
+
                                     <div class="pokemon-stats mb-3 flex-grow-1">
                                         <div class="row text-center">
                                             <div class="col-4">
@@ -119,6 +125,13 @@
             font-size: 1.2rem;
             font-weight: bold;
             margin: 0.25rem 0;
+        }
+
+        .pokemon-image {
+            width: 96px;
+            height: 96px;
+            display: block;
+            margin: 0 auto;
         }
 
         .form-check-input:checked {
