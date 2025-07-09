@@ -1,4 +1,3 @@
-
 ## Review Assignment
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/0E1ES0GJ)
 
@@ -6,115 +5,113 @@
 
 # 🎮 Arène des Légendes - ASP.NET MVC
 
-## 📌 Description
-**Arène des Légendes** est une application multijoueur développée en **ASP.NET MVC** permettant aux joueurs de s'affronter dans un système de combat stratégique.  
-Ce projet exploite **Entity Framework** pour la gestion des données sous **SQL Server** et met en œuvre les meilleures pratiques de développement en ASP.NET.
+## Présentation
+**Arène des Légendes** est une application multijoueur développée avec **ASP.NET MVC**. Elle permet aux joueurs d'affronter leurs adversaires dans un système de combat inspiré des jeux Pokémon. Le projet repose sur **Entity Framework** et **SQL Server** pour la gestion des données et applique les bonnes pratiques de développement ASP.NET.
 
 ---
 
-## 🎯 Objectif
-Le projet vise à :
-- 🏗️ Développer un **backend unique** en ASP.NET MVC gérant les combats multijoueurs.
-- 🛠️ Assurer une **modularité et une structuration** claire du code.
-- 🗄️ Concevoir une **base de données relationnelle** pour stocker les joueurs, Pokémon et objets.
-- 🚀 Déployer l'application sur un serveur pour démonstration.
+## Objectifs
+- Créer un **backend unique** gérant les combats multijoueurs
+- Maintenir un code **modulaire** et bien structuré
+- Concevoir une **base de données relationnelle** pour les utilisateurs, les Pokémon et l'inventaire
+- Préparer la **mise en ligne** de l'application
 
 ---
 
-## 🏗️ Architecture du Projet
-📌 **Backend (commun)** : API REST en ASP.NET MVC  
-📌 **Base de données** : SQL Server avec Entity Framework  
-📌 **Frontend (individuel)** : Chaque étudiant développe sa propre interface utilisateur  
-📌 **Gestion des versions** : Git avec workflow structuré (branches, commits clairs)  
+## Architecture
+- **Backend commun** : API REST ASP.NET MVC
+- **Base de données** : SQL Server avec Entity Framework
+- **Frontends individuels** : chaque étudiant réalise son interface
+- **Gestion du code** : workflow Git avec branches dédiées
 
 ---
 
-## 🗂️ Modélisation des Données
-### 📋 Tables Principales
-- **`user_auth`** : Stocke les utilisateurs du jeu.
-- **`player`** : Représente les joueurs et leurs statistiques.
-- **`pokemon`** : Contient les Pokémon avec leurs attributs et évolutions.
-- **`type`** : Définit les types de Pokémon avec leurs effets.
-- **`skill`** : Gère les attaques des Pokémon.
-- **`object`** : Représente les objets achetables en jeu.
-- **`log`** : Historique des actions dans le jeu.
+## Modèle de données
+Les principales tables sont :
+- `user_auth` : utilisateurs enregistrés
+- `player` : informations et statistiques des joueurs
+- `pokemon` : liste des Pokémon et leurs évolutions
+- `type` : types de Pokémon et effets associés
+- `skill` : attaques possibles
+- `object` : objets achetables en jeu
+- `log` : historique des combats
 
-💡 **Relations** : Plusieurs relations en **clé étrangère** pour les interactions entre entités.
-
----
-
-## ⚙️ Technologies Utilisées
-- ✅ **ASP.NET MVC** (backend)
-- ✅ **Entity Framework** (ORM)
-- ✅ **SQL Server** (base de données)
-- ✅ **C#** (langage de programmation)
-- ✅ **Git/GitHub** (gestion de version)
-- ✅ **HTML/CSS/JS** (pour les frontends)
+Les relations sont gérées par des **clés étrangères** pour assurer la cohérence des données.
 
 ---
 
-## 🚀 Installation et Lancement
+## Technologies
+- **ASP.NET MVC**
+- **Entity Framework**
+- **SQL Server**
+- **C#**
+- **Git/GitHub**
+- **HTML/CSS/JS** pour les interfaces
 
-### 1️⃣ Prérequis
-- [ ] **.NET SDK 6+**
-- [ ] **SQL Server**
-- [ ] **Git**
+---
 
-### 2️⃣ Cloner le dépôt
+## Installation rapide
+
+### Prérequis
+- .NET SDK 6+
+- SQL Server
+- Git
+
+### Cloner le dépôt
 ```bash
 git clone https://github.com/votre-utilisateur/arena-legendes.git
 cd arena-legendes
 ```
 
-### 3️⃣ Configuration de la base de données
-Modifier **`appsettings.json`** pour configurer la connexion SQL Server :
+### Configuration de la base
+Modifiez `appsettings.json` pour votre connexion SQL Server :
 ```json
 "ConnectionStrings": {
   "DefaultConnection": "Server=.;Database=ArenaLegendesDB;Trusted_Connection=True;MultipleActiveResultSets=true"
 }
 ```
-
-Appliquer les migrations :
+Puis exécutez :
 ```bash
 dotnet ef database update
 ```
 
-### 4️⃣ Lancer l’application
+### Lancer l'application
 ```bash
 dotnet run
 ```
-L’API sera disponible sur `http://localhost:5000`.
+L'API est disponible sur `http://localhost:5000`.
 
 ---
 
-## 📜 Fonctionnalités Principales
-✔️ Gestion des joueurs et de leurs Pokémon  
-✔️ Système de combat en tour par tour  
-✔️ Attribution des compétences et évolutions  
-✔️ Économie en jeu avec achats d'objets  
-✔️ Historique des combats  
+## Fonctionnalités principales
+- Gestion des joueurs et de leurs Pokémon
+- Combats au tour par tour
+- Attribution des compétences et évolutions
+- Économie avec achats d'objets
+- Historique des batailles
 
 ---
 
-## 🔥 Fonctionnalités Avancées (Bonus)
-- 🎖️ **Classement** des meilleurs joueurs
-- 🧠 **IA des adversaires**
-- 🎨 **Animations et effets visuels**
-- 📜 **Quêtes et événements aléatoires**
+## Fonctionnalités avancées (bonus)
+- Classement des meilleurs joueurs
+- IA pour les adversaires
+- Animations et effets visuels
+- Quêtes et événements aléatoires
 
 ---
 
-## 👥 Contributions
-- **Backend commun** : Développé en équipe.
-- **Frontends individuels** : Chaque étudiant crée son interface utilisateur.
-- **Base de données** : Collaboration sur la modélisation et les migrations.
+## Contribuer
+- Backend commun développé en équipe
+- Frontends individuels
+- Modélisation de la base et migrations partagées
+Pour plus de détails, consultez [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
-## 📌 Critères d'Évaluation
+## Critères d'évaluation
 
 | Critère | Points |
-|---------|--------|
+|---------|-------:|
 | Respect du pattern MVC | 3 |
 | Qualité du code | 3 |
 | Expérience utilisateur (UX) | 2 |
@@ -124,8 +121,7 @@ L’API sera disponible sur `http://localhost:5000`.
 
 ---
 
-## 📜 Licence
-Ce projet est sous licence **MIT**. Vous êtes libre de l'utiliser et de le modifier.
+## Licence
+Ce projet est distribué sous licence **MIT**.
 
 ---
-
